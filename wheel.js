@@ -26,7 +26,7 @@ const config = {
     totalWinTextStyle: { fontFamily: 'Arial', fontSize: 20, fill: 'yellow', align: 'center' },
 };
 
-// Инициализация PIXI
+
 const app = new PIXI.Application({ width: config.width, height: config.height });
 document.getElementById('app').appendChild(app.view);
 
@@ -63,7 +63,7 @@ function drawWheel() {
         wheel.lineTo(0, 0);
         wheel.endFill();
 
-        // Добавление текста приза
+
         const text = new PIXI.Text(prize, config.prizeTextStyle);
         const textAngle = startAngle + sectorAngle / 2;
         text.anchor.set(0.5);
@@ -71,7 +71,7 @@ function drawWheel() {
         text.rotation = textAngle + Math.PI / 2;
         wheel.addChild(text);
 
-        // Добавление линий между сегментами
+ 
         const line = new PIXI.Graphics();
         line.lineStyle(3, 0xFFFFFF);
         line.moveTo(0, 0);
@@ -123,7 +123,7 @@ function spinWheel() {
 function displayResult(prizeIndex) {
     const winPrize = config.segments[prizeIndex].prize;
     
-    setTimeout(() => { // Имитация задержки для визуализации
+    setTimeout(() => { 
         backdrop.beginFill(0x000000, 0.5);
         backdrop.drawRect(0, 0, app.view.width, app.view.height);
         backdrop.endFill();
@@ -136,7 +136,7 @@ function displayResult(prizeIndex) {
         
         app.stage.addChild(resultContainer);
         app.view.addEventListener('click', closeResultWindow);
-        spinning = false; // Возвращаем флаг вращения назад
+        spinning = false; 
     }, 2000);
 }
 
@@ -150,7 +150,7 @@ function closeResultWindow(event) {
     }
 }
 
-// Создание кнопки
+
 const spinButton = new PIXI.Graphics();
 spinButton.beginFill(0xCCCCCC);
 spinButton.drawRoundedRect(centerX - config.buttonWidth / 2, app.view.height - 150, config.buttonWidth, config.buttonHeight, config.buttonRadius);
