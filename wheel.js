@@ -1,19 +1,21 @@
 import * as PIXI from './pixi.mjs';
 
+gsap.registerPlugin(PixiPlugin);
+
 const config = {
     width: 1920,
     height: 1080,
     radius: 300,
     borderThickness: 8,
     segments: [
-        { prize: "$100 1", color: 0x006400 },
-        { prize: "$200 2", color: 0x8B0000 },
-        { prize: "$300 3", color: 0xB8860B },
-        { prize: "$400 4", color: 0xA9A9A9 },
-        { prize: "$500 5", color: 0x006400 },
-        { prize: "$600 6", color: 0x8B0000 },
-        { prize: "$700 7", color: 0xB8860B },
-        { prize: "$800 8", color: 0xA9A9A9 },
+        { prize: "$100 1", color: 0x0000FF }, // Синий
+        { prize: "$200 2", color: 0x808080 }, // Серый
+        { prize: "$300 3", color: 0x0000FF }, // Синий
+        { prize: "$400 4", color: 0x808080 }, // Серый
+        { prize: "$500 5", color: 0x0000FF }, // Синий
+        { prize: "$600 6", color: 0x808080 }, // Серый
+        { prize: "$700 7", color: 0x0000FF }, // Синий
+        { prize: "$800 8", color: 0x808080 }, // Серый
     ],
     spinTime: 4000,
     totalRotations: 5,
@@ -24,6 +26,7 @@ const config = {
     totalWinTextStyle: { fontFamily: 'Arial', fontSize: 20, fill: 'yellow', align: 'center' },
 };
 
+// Инициализация PIXI
 const app = new PIXI.Application({ width: config.width, height: config.height });
 document.getElementById('app').appendChild(app.view);
 
@@ -36,6 +39,7 @@ let backdrop = new PIXI.Graphics();
 let resultText = new PIXI.Text('', config.prizeTextStyle);
 let totalWinText = new PIXI.Text('', config.totalWinTextStyle);
 let triangle;
+let spinning = false;
 
 resultText.anchor.set(0.5);
 totalWinText.anchor.set(0.5);
@@ -59,6 +63,7 @@ function drawWheel() {
         wheel.lineTo(0, 0);
         wheel.endFill();
 
+        // Добавление текста приза
         const text = new PIXI.Text(prize, config.prizeTextStyle);
         const textAngle = startAngle + sectorAngle / 2;
         text.anchor.set(0.5);
@@ -66,6 +71,7 @@ function drawWheel() {
         text.rotation = textAngle + Math.PI / 2;
         wheel.addChild(text);
 
+        // Добавление линий между сегментами
         const line = new PIXI.Graphics();
         line.lineStyle(3, 0xFFFFFF);
         line.moveTo(0, 0);
@@ -76,7 +82,7 @@ function drawWheel() {
     wheel.x = centerX;
     wheel.y = centerY;
 
-    border.lineStyle(config.borderThickness, 0x0000FF);
+    border.lineStyle(config.borderThickness, 0x0000FF); // Настройка цвета границы
     border.drawCircle(centerX, centerY, config.radius + config.borderThickness);
     border.endFill();
 }
@@ -92,8 +98,6 @@ function drawTriangleAtWheel() {
     app.stage.addChild(triangle);
 }
 
-let spinning = false;
-
 function spinWheel() {
     if (spinning) return;
 
@@ -102,54 +106,38 @@ function spinWheel() {
     totalWinText.text = '';
     backdrop.clear();
     
-    const randomAdjustment = Math.random() * Math.PI;
-    const rotationTarget = wheel.rotation + (Math.PI * 2 * config.totalRotations) + randomAdjustment;
+    const randomAdjustment = Math.random() * Math.PI; 
+    const rotationTarget = (wheel.rotation + Math.PI * 2 * config.totalRotations) + randomAdjustment; 
 
-    let startRotation = wheel.rotation;
-    let startTime = null;
-
-    function update(time) {
-        if (!startTime) startTime = time;
-        const elapsed = time - startTime;
-        const t = Math.min(elapsed / config.spinTime, 1);
-        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-        wheel.rotation = startRotation + (rotationTarget - startRotation) * ease;
-
-        if (t < 1) {
-            requestAnimationFrame(update);
-        } else {
-            spinning = false;
-            const resultAngle = wheel.rotation % (Math.PI * 2);
-            const prizeIndex = getPrizeIndex(resultAngle);
-
-            setTimeout(() => {
-                backdrop.beginFill(0x000000, 0.5);
-                backdrop.drawRect(0, 0, app.view.width, app.view.height);
-                backdrop.endFill();
-                app.stage.addChild(backdrop);
-
-                const winPrize = config.segments[prizeIndex].prize;
-                resultText.text = "Вы выиграли: " + winPrize;
-
-                resultContainer.position.set(centerX, centerY);
-                totalWinText.position.set(0, 50);
-                
-                app.stage.addChild(resultContainer);
-                app.view.addEventListener('click', closeResultWindow);
-            }, 2000);
+    gsap.to(wheel, {
+        rotation: rotationTarget,
+        duration: config.spinTime / 1000,
+        ease: "power3.inOut",
+        onComplete: () => {
+            const prizeIndex = Math.floor(Math.random() * config.segments.length);
+            displayResult(prizeIndex);
         }
-    }
-    requestAnimationFrame(update);
+    });
 }
 
-function getPrizeIndex(angle) {
-    const sectorAngle = (2 * Math.PI) / config.segments.length;
-    let adjustedAngle = angle + Math.PI / 2;
-    if (adjustedAngle < 0) {
-        adjustedAngle += 2 * Math.PI;
-    }
+function displayResult(prizeIndex) {
+    const winPrize = config.segments[prizeIndex].prize;
     
-    return Math.floor(adjustedAngle / sectorAngle) % config.segments.length;
+    setTimeout(() => { // Имитация задержки для визуализации
+        backdrop.beginFill(0x000000, 0.5);
+        backdrop.drawRect(0, 0, app.view.width, app.view.height);
+        backdrop.endFill();
+        app.stage.addChild(backdrop);
+
+        resultText.text = "Вы выиграли: " + winPrize;
+
+        resultContainer.position.set(centerX, centerY);
+        totalWinText.position.set(0, 50);
+        
+        app.stage.addChild(resultContainer);
+        app.view.addEventListener('click', closeResultWindow);
+        spinning = false; // Возвращаем флаг вращения назад
+    }, 2000);
 }
 
 function closeResultWindow(event) {
@@ -162,8 +150,9 @@ function closeResultWindow(event) {
     }
 }
 
+// Создание кнопки
 const spinButton = new PIXI.Graphics();
-spinButton.beginFill(0xffffff);
+spinButton.beginFill(0xCCCCCC);
 spinButton.drawRoundedRect(centerX - config.buttonWidth / 2, app.view.height - 150, config.buttonWidth, config.buttonHeight, config.buttonRadius);
 spinButton.endFill();
 
