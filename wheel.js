@@ -8,14 +8,14 @@ const config = {
     radius: 300,
     borderThickness: 8,
     segments: [
-        { prize: "$100 1", color: 0x0000FF }, // Синий
-        { prize: "$200 2", color: 0x808080 }, // Серый
-        { prize: "$300 3", color: 0x0000FF }, // Синий
-        { prize: "$400 4", color: 0x808080 }, // Серый
-        { prize: "$500 5", color: 0x0000FF }, // Синий
-        { prize: "$600 6", color: 0x808080 }, // Серый
-        { prize: "$700 7", color: 0x0000FF }, // Синий
-        { prize: "$800 8", color: 0x808080 }, // Серый
+        { prize: "$100 1", color: 0x0000FF }, 
+        { prize: "$200 2", color: 0x808080 }, 
+        { prize: "$300 3", color: 0x0000FF }, 
+        { prize: "$400 4", color: 0x808080 }, 
+        { prize: "$500 5", color: 0x0000FF }, 
+        { prize: "$600 6", color: 0x808080 }, 
+        { prize: "$700 7", color: 0x0000FF }, 
+        { prize: "$800 8", color: 0x808080 }, 
     ],
     spinTime: 4000,
     totalRotations: 5,
@@ -82,7 +82,7 @@ function drawWheel() {
     wheel.x = centerX;
     wheel.y = centerY;
 
-    border.lineStyle(config.borderThickness, 0x0000FF); // Настройка цвета границы
+    border.lineStyle(config.borderThickness, 0x0000FF); 
     border.drawCircle(centerX, centerY, config.radius + config.borderThickness);
     border.endFill();
 }
@@ -106,22 +106,22 @@ function spinWheel() {
     totalWinText.text = '';
     backdrop.clear();
 
-    // Сначала выбираем индекс сектора, на котором хотим остановиться
+
     const prizeIndex = Math.floor(Math.random() * config.segments.length);
     const sectorAngle = (Math.PI * 2) / config.segments.length;
-    const targetAngle = prizeIndex * sectorAngle + sectorAngle / 2; // Центр сектора
+    const targetAngle = prizeIndex * sectorAngle + sectorAngle / 2; 
 
-    // Расчет конечного угла вращения
-    const randomAdjustment = Math.random() * Math.PI; // Случайный угол для добавления
+ 
+    const randomAdjustment = Math.random() * Math.PI; 
     const rotationTarget = (wheel.rotation + Math.PI * 2 * config.totalRotations) + targetAngle + randomAdjustment;
 
-    // Анимация вращения
+
     gsap.to(wheel, {
         rotation: rotationTarget,
         duration: config.spinTime / 1000,
         ease: "power3.inOut",
         onComplete: () => {
-            displayResult(prizeIndex); // Выводим результат
+            displayResult(prizeIndex); 
         }
     });
 }
