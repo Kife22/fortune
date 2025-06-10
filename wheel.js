@@ -105,17 +105,23 @@ function spinWheel() {
     resultText.text = '';
     totalWinText.text = '';
     backdrop.clear();
-    
-    const randomAdjustment = Math.random() * Math.PI; 
-    const rotationTarget = (wheel.rotation + Math.PI * 2 * config.totalRotations) + randomAdjustment; 
 
+    // Сначала выбираем индекс сектора, на котором хотим остановиться
+    const prizeIndex = Math.floor(Math.random() * config.segments.length);
+    const sectorAngle = (Math.PI * 2) / config.segments.length;
+    const targetAngle = prizeIndex * sectorAngle + sectorAngle / 2; // Центр сектора
+
+    // Расчет конечного угла вращения
+    const randomAdjustment = Math.random() * Math.PI; // Случайный угол для добавления
+    const rotationTarget = (wheel.rotation + Math.PI * 2 * config.totalRotations) + targetAngle + randomAdjustment;
+
+    // Анимация вращения
     gsap.to(wheel, {
         rotation: rotationTarget,
         duration: config.spinTime / 1000,
         ease: "power3.inOut",
         onComplete: () => {
-            const prizeIndex = Math.floor(Math.random() * config.segments.length);
-            displayResult(prizeIndex);
+            displayResult(prizeIndex); // Выводим результат
         }
     });
 }
